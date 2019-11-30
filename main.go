@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "github.com/myfabric-tool/bindata"
-	. "github.com/myfabric-tool/controller"
+	. "myfabric-tool/bindata"
+	. "myfabric-tool/controller"
 	"html/template"
 	"log"
 	"net/http"

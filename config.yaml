@@ -1,0 +1,12 @@
+peer.mspConfigPath: "crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+peer.localMspId: "Org1MSP"
+
+peer.address: "192.168.18.3:7051"
+peer.tls.enabled: true
+peer.tls.rootcert.file: "crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
+peer.tls.serverhostoverride: "peer0.org1.example.com"
+
+orderer.address: "192.168.18.3:7050"
+orderer.tls.serverhostoverride: "orderer.example.com"
+orderer.tls.enabled: true
+orderer.tls.rootcert.file: "crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
