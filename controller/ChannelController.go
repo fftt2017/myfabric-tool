@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"myfabric-tool/bindata"
-	"myfabric-tool/chain/client"
 	"myfabric-tool/model"
 	"myfabric-tool/service"
 	"net/http"
@@ -70,14 +69,4 @@ func ChannelFetch(w http.ResponseWriter, r *http.Request) {
 
 func ChannelFetchJson(w http.ResponseWriter, r *http.Request) {
 
-}
-
-func getChainClient() error {
-	client.InitConfig()
-	cc, err := client.NewClient()
-	if err != nil {
-		return err
-	}
-	fmt.Println("chainclient: %v", cc)
-	return nil
 }

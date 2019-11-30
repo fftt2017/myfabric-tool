@@ -22,3 +22,17 @@ func ListChannels() ([]*model.Channel, error) {
 
 	return channels, nil
 }
+
+func GetChannelInfo(channelID string) (*model.Blockchain, error) {
+	chainClient, err := client.GetDefaultClient()
+	if err != nil {
+		return nil, err
+	}
+	blockchainInfo, err := client.GetChannelInfo(chainClient, channelID)
+	if err != nil {
+		return nil, err
+	}
+	blockchain := model.NewBlockchain(blockchainInfo)
+
+	return blockchain, nil
+}
