@@ -1,12 +1,16 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/hyperledger/fabric/common/tools/protolator"
 	"github.com/hyperledger/fabric/core/scc/cscc"
 	"github.com/hyperledger/fabric/core/scc/qscc"
+	peercom "github.com/hyperledger/fabric/peer/common"
 	protocom "github.com/hyperledger/fabric/protos/common"
 	pb "github.com/hyperledger/fabric/protos/peer"
 	"github.com/hyperledger/fabric/protos/utils"
@@ -81,4 +85,44 @@ func GetChannelInfo(chainClient *ChainClient, channelID string) (*protocom.Block
 		return nil, err
 	}
 	return blockChainInfo, nil
+}
+
+func FetchBlock(chainClient *ChainClient, channelID, blockIndex string) (string, error) {
+	deliverClient, err := peercom.NewDeliverClientForPeer(channelID)
+	if err != nil {
+		return "", err
+	}
+	var block *protocom.Block
+	switch blockIndex {
+	case "oldest":
+		block, err = deliverClient.GetOldestBlock()
+	case "newest":
+		block, err = deliverClient.GetNewestBlock()
+	case "config":
+		iBlock, err := deliverClient.GetNewestBlock()
+		if err != nil {
+			return "", err
+		}
+		lc, err := utils.GetLastConfigIndexFromBlock(iBlock)
+		if err != nil {
+			return "", err
+		}
+		block, err = deliverClient.GetSpecifiedBlock(lc)
+	default:
+		num, err := strconv.Atoi(blockIndex)
+		if err != nil {
+			return "", err
+		}
+		block, err = deliverClient.GetSpecifiedBlock(uint64(num))
+	}
+	if err != nil {
+		return "", err
+	}
+	bs := make([]byte, 0, 10*1024)
+	buf := bytes.NewBuffer(bs)
+	err = protolator.DeepMarshalJSON(buf, block)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
