@@ -1,0 +1,64 @@
+orgs: ["org0", "org1", "org2"]
+
+org0: 
+  localMSPId: "Org0MSP"
+  tls-root-cert-file: "first-network/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"
+  nodes: ["node1"]
+  node1: 
+    type: orderer
+    address: "192.168.18.3:7050"
+    tls-enabled: true
+    tls-serverhostoverride: "orderer.example.com"
+    tls-clientAuthRequired: false
+
+org1: 
+  localMSPId: "Org1MSP"
+  tls-root-cert-file: "first-network/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem"
+  users: ["admin", "user"]
+  nodes: ["node1", "node2"]
+  admin: 
+    mspConfigPath: "first-network/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+    tls-client-key-file: ""
+    tls-client-cert-file: ""
+  user: 
+    mspConfigPath: "first-network/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp"
+    tls-client-key-file: ""
+    tls-client-cert-file: ""
+  node1: 
+    type: peer
+    address: "192.168.18.3:7051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer0.org1.example.com"
+    tls-clientAuthRequired: false
+  node2: 
+    type: peer
+    address: "192.168.18.3:8051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer1.org1.example.com"
+    tls-clientAuthRequired: false
+
+org2: 
+  localMSPId: "Org2MSP"
+  tls-root-cert-file: "first-network/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem"
+  users: ["admin", "user"]
+  nodes: ["node1", "node2"]
+  admin: 
+    mspConfigPath: "first-network/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp"
+    tls-client-key-file: ""
+    tls-client-cert-file: ""
+  user: 
+    mspConfigPath: "first-network/crypto-config/peerOrganizations/org2.example.com/users/User1@org2.example.com/msp"
+    tls-client-key-file: ""
+    tls-client-cert-file: ""
+  node1: 
+    type: peer
+    address: "192.168.18.3:9051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer0.org2.example.com"
+    tls-clientAuthRequired: false
+  node2: 
+    type: peer
+    address: "192.168.18.3:10051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer1.org2.example.com"
+    tls-clientAuthRequired: false 

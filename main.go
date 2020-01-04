@@ -1,34 +1,39 @@
 package main
 
 import (
-	. "myfabric-tool/bindata"
-	. "myfabric-tool/controller"
 	"html/template"
 	"log"
+	. "myfabric-tool/bindata"
+	"myfabric-tool/config"
+	. "myfabric-tool/controller"
 	"net/http"
 )
 
 func main() {
+
+	if err := config.LoadConfig("config-first-network.yaml"); err != nil {
+		log.Fatalf("load config failed: %s", err)
+	}
+
 	//to run 'go-bindata-assetfs  -o "bindata/bindata.go" -pkg bindata static/...' in terminal
 	ConfigRouter()
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal("start server failed, reson is : ", err)
 	}
 }
-func ConfigRouter(){
+func ConfigRouter() {
 	http.Handle("/", http.FileServer(AssetFS()))
 	http.HandleFunc("/index", Index)
 
-	http.HandleFunc("/channel/list",ChannelList)
-	http.HandleFunc("/channel/listJson",ChannelListJson)
-	http.HandleFunc("/channel/getInfo",ChannelGetInfo)
-	http.HandleFunc("/channel/getInfoJson",ChannelGetInfoJson)
+	http.HandleFunc("/channel/list", ChannelList)
+	http.HandleFunc("/channel/listJson", ChannelListJson)
+	http.HandleFunc("/channel/getInfo", ChannelGetInfo)
+	http.HandleFunc("/channel/getInfoJson", ChannelGetInfoJson)
 	http.HandleFunc("/channel/fetch", ChannelFetch)
 	http.HandleFunc("/channel/fetchJson", ChannelFetchJson)
 }
-func Index(w http.ResponseWriter, r *http.Request){
+func Index(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("static/index.html")
 	//执行模板
-	t.Execute(w,nil)
+	t.Execute(w, nil)
 }

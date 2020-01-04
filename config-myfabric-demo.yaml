@@ -1,0 +1,64 @@
+orgs: ["org0", "org1", "org2"]
+
+org0: 
+  localMSPId: "org0MSP"
+  tls-root-cert-file: "myfabric-demo/org0/data/org0-ca-chain.pem"
+  nodes: ["node1"]
+  node1: 
+    type: orderer
+    address: "192.168.18.3:7050"
+    tls-enabled: true
+    tls-serverhostoverride: "orderer1-org0"
+    tls-clientAuthRequired: true
+
+org1: 
+  localMSPId: "org1MSP"
+  tls-root-cert-file: "myfabric-demo/org1/data/org1-ca-chain.pem"
+  users: ["admin", "user"]
+  nodes: ["node1", "node2"]
+  admin: 
+    mspConfigPath: "myfabric-demo/org1/data/admin/msp"
+    tls-client-key-file: "myfabric-demo/org1/data/admin/tls/client.key"
+    tls-client-cert-file: "myfabric-demo/org1/data/admin/tls/client.crt"
+  user: 
+    mspConfigPath: "myfabric-demo/org1/data/user/msp"
+    tls-client-key-file: "myfabric-demo/org1/data/user/tls/client.key"
+    tls-client-cert-file: "myfabric-demo/org1/data/user/tls/client.crt"
+  node1: 
+    type: peer
+    address: "192.168.18.3:7051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer1-org1"
+    tls-clientAuthRequired: true
+  node2: 
+    type: peer
+    address: "192.168.18.3:8051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer2-org1"
+    tls-clientAuthRequired: true
+
+org2: 
+  localMSPId: "org2MSP"
+  tls-root-cert-file: "myfabric-demo/org2/data/org2-ca-chain.pem"
+  users: ["admin", "user"]
+  nodes: ["node1", "node2"]
+  admin: 
+    mspConfigPath: "myfabric-demo/org2/data/admin/msp"
+    tls-client-key-file: "myfabric-demo/org2/data/admin/tls/client.key"
+    tls-client-cert-file: "myfabric-demo/org2/data/admin/tls/client.crt"
+  user: 
+    mspConfigPath: "myfabric-demo/org2/data/user/msp"
+    tls-client-key-file: "myfabric-demo/org2/data/user/tls/client.key"
+    tls-client-cert-file: "myfabric-demo/org2/data/user/tls/client.crt"
+  node1: 
+    type: peer
+    address: "192.168.18.3:9051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer1-org2"
+    tls-clientAuthRequired: true
+  node2: 
+    type: peer
+    address: "192.168.18.3:10051"
+    tls-enabled: true
+    tls-serverhostoverride: "peer2-org2"
+    tls-clientAuthRequired: true 

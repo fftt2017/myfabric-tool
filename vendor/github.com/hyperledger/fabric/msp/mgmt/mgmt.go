@@ -129,6 +129,12 @@ func XXXSetMSPManager(chainID string, manager msp.MSPManager) {
 	mspMap[chainID] = &mspMgmtMgr{manager, true}
 }
 
+func CleanLocalMSP() {
+	m.Lock()
+	defer m.Unlock()
+	localMsp = nil
+}
+
 // GetLocalMSP returns the local msp (and creates it if it doesn't exist)
 func GetLocalMSP() msp.MSP {
 	m.Lock()

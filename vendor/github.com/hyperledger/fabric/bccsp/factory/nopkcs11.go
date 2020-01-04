@@ -29,6 +29,50 @@ type FactoryOpts struct {
 	PluginOpts   *PluginOpts `mapstructure:"PLUGIN,omitempty" json:"PLUGIN,omitempty" yaml:"PluginOpts"`
 }
 
+func InitFactoriesAgain(config *FactoryOpts) error {
+	// Take some precautions on default opts
+	if config == nil {
+		config = GetDefaultOpts()
+	}
+
+	if config.ProviderName == "" {
+		config.ProviderName = "SW"
+	}
+
+	if config.SwOpts == nil {
+		config.SwOpts = GetDefaultOpts().SwOpts
+	}
+
+	// Initialize factories map
+	bccspMap = make(map[string]bccsp.BCCSP)
+
+	// Software-Based BCCSP
+	if config.SwOpts != nil {
+		f := &SWFactory{}
+		err := initBCCSP(f, config)
+		if err != nil {
+			return err
+		}
+	}
+
+	// BCCSP Plugin
+	if config.PluginOpts != nil {
+		f := &PluginFactory{}
+		err := initBCCSP(f, config)
+		if err != nil {
+			return err
+		}
+	}
+
+	var ok bool
+	defaultBCCSP, ok = bccspMap[config.ProviderName]
+	if !ok {
+		return errors.Errorf("Could not find default `%s` BCCSP", config.ProviderName)
+	}
+
+	return nil
+}
+
 // InitFactories must be called before using factory interfaces
 // It is acceptable to call with config = nil, in which case
 // some defaults will get used
