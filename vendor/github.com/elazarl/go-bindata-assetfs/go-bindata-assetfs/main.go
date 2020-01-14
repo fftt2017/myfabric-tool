@@ -96,7 +96,7 @@ func main() {
 	}
 	if debug {
 		fmt.Fprintln(out, `
-func assetFS() http.FileSystem {
+func AssetFS() http.FileSystem {
 	for k := range _bintree.Children {
 		return http.Dir(k)
 	}
@@ -104,7 +104,7 @@ func assetFS() http.FileSystem {
 }`)
 	} else {
 		fmt.Fprintln(out, `
-func assetFS() *assetfs.AssetFS {
+func AssetFS() *assetfs.AssetFS {
 	assetInfo := func(path string) (os.FileInfo, error) {
 		return os.Stat(path)
 	}

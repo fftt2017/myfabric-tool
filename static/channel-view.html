@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎页面-X-admin2.2</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/lib/Base64.js"></script>
+</head>
+<body style="background: #fff">
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">blockIndex</label>
+        <div class="layui-input-block">
+            <input type="radio" name="blockIndex" lay-filter="selectBlockIndex" value="oldest" title="oldest" >
+            <input type="radio" name="blockIndex" lay-filter="selectBlockIndex" value="newest" title="newest" checked>
+            <input type="radio" name="blockIndex" lay-filter="selectBlockIndex" value="blockNumber" title="blockNumber" >
+        </div>
+
+    </div>
+    <div class="layui-form-item" style="display: none" id="blockNumber">
+        <label class="layui-form-label">blockNumber</label>
+        <div class="layui-input-inline">
+            <input  type="text" id="blockNumberInput" placeholder="请输入blockNumber" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal" onclick="loadFetchData()">加载数据</button>
+        </div>
+    </div>
+</form>
+<div class="site-title">
+    <fieldset class="layui-elem-field layui-field-title site-title">
+        <legend><a name="reload">channel info</a></legend>
+    </fieldset>
+</div>
+<table class="layui-table" style="table-layout:fixed">
+    <thead>
+    <tr>
+        <th width="150">属性名</th>
+        <th>值</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>CurrentBlockHash</td>
+        <td id="CurrentBlockHash"></td>
+    </tr>
+    <tr>
+        <td>Height</td>
+        <td id="Height"></td>
+    </tr>
+    <tr>
+        <td>PreviousBlockHash</td>
+        <td id="PreviousBlockHash"></td>
+    </tr>
+    </tbody>
+</table>
+<div class="site-title">
+    <fieldset class="layui-elem-field layui-field-title site-title">
+        <legend><a name="reload">fetch info</a></legend>
+    </fieldset>
+</div>
+<table class="layui-table" style="table-layout:fixed">
+    <thead>
+    <tr>
+        <th width="150">属性名</th>
+        <th>值</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>data_hash</td>
+        <td id="data_hash"></td>
+    </tr>
+    <tr>
+        <td>number</td>
+        <td id="number"></td>
+    </tr>
+    <tr>
+        <td>previous_hash</td>
+        <td id="previous_hash"></td>
+    </tr>
+    <tr>
+        <td>validation_code</td>
+        <td id="validation_code"></td>
+    </tr>
+    <tr>
+        <td>count</td>
+        <td id="count"></td>
+    </tr>
+    <tr>
+        <td>data</td>
+        <td id="data">
+
+        </td>
+    </tr>
+    </tbody>
+</table>
+<script>
+    //Demo
+    layui.use('form', function(){
+        $ = layui.jquery;
+        $('body').append('<script src="/lib/json-browse/jquery.json-browse.js"/>');
+        $('body').append('<link href="/lib/json-browse/jquery.json-browse.css" type="text/css" rel="stylesheet"/>');
+        var form = layui.form;
+        form.on('radio(selectBlockIndex)',function (data) {
+            if (data.value=='blockNumber'){
+                $('#blockNumber').show();
+            }
+            else{
+                $('#blockNumber').hide();
+            }
+        });
+
+        loadFetchData()
+    });
+    function loadFetchData(){
+        $.ajax({
+            type:"post",
+            url:"/channel/getInfoJson",
+            data:{channelId:'{{.}}'},
+            dataType:"JSON",
+            success:function (data) {
+                $("#CurrentBlockHash").html(data.CurrentBlockHash);
+                $("#Height").html(data.Height);
+                $("#PreviousBlockHash").html(data.PreviousBlockHash);
+            }
+        });
+        var blockIndex = $("input[name='blockIndex']:checked").val();
+        if (blockIndex=='blockNumber'){
+            blockIndex = $('#blockNumberInput').val();
+        }
+        $.ajax({
+            type:"post",
+            url:"/channel/fetchJson",
+            data:{channelId:'{{.}}',blockIndex:blockIndex},
+            dataType:"JSON",
+            success:function (resp) {
+                $("#data_hash").html(resp.data_hash);
+                $("#number").html(resp.number);
+                $("#previous_hash").html(resp.previous_hash);
+                $("#validation_code").html(resp.validation_code);
+                $("#count").html(resp.count);
+                var html = '';
+                for (var i=0;i<resp.datas.length;i++){
+                    var data = resp.datas[i];
+                    html = html + '<table class="layui-table" style="table-layout:fixed"><tbody>';
+                    html = html + '<tr><td width="100">channel_id</td><td>'+data.channel_id+'</td></tr>';
+                    html = html + '<tr><td>timestamp</td><td>'+data.timestamp+'</td></tr>';
+                    html = html + '<tr><td>tx_id</td><td>'+data.tx_id+'</td></tr>';
+                    html = html + '<tr><td>type</td><td>'+data.type+'</td></tr>';
+                    html = html + '<tr><td>creatorId</td><td>'+Base64.decode(data.creatorId).replace(/\n/g,"<br>")+'</td></tr>';
+                    html = html + '<tr><td>mspid</td><td>'+data.mspid+'</td></tr>';
+                    html = html + '<tr><td>actions</td><td>'+getActionsHtml(data.actions)+'</td></tr>';
+                    html = html + '</tbody></table>';
+                }
+                $('#data').html(html);
+                renderJson();
+            }
+        });
+    }
+    function getActionsHtml(actions){
+        var html='';
+        for (var i=0;i<actions.length;i++){
+            var action = actions[i];
+            decodeBase64(action);
+            html = html + '<table class="layui-table" style="table-layout:fixed"><tbody>';
+            html = html + '<tr><td width="100">endorsements</td><td>'+getEndorsementsHtml(action.endorsements)+'</td></tr>';
+            html = html + '<tr><td>chaincode_proposal</td><td>'+getProposalHtml(action.chaincode_proposal)+'</td></tr>';
+            html = html + '<tr><td>proposal_response</td><td>'+getResponseHtml(action.proposal_response)+'</td></tr>';
+            html = html + '</tbody></table>';
+        }
+        return html;
+    }
+    function getEndorsementsHtml(endorsements){
+        var html = '<table class="layui-table"><tbody>';;
+        for (var i=0;i<endorsements.length;i++){
+            var endorsement = endorsements[i];
+            html = html + '<tr><td>'+endorsement+'</td></tr>';
+        }
+        html = html + '</tbody></table>';
+        return html;
+    }
+    function getProposalHtml(proposal){
+        var html = '<table class="layui-table" style="table-layout:fixed"><tbody>';
+        html = html + '<tr><td width="100">chaincode_name</td><td>'+proposal.chaincode_name+'</td></tr>';
+        html = html + '<tr><td>type</td><td>'+proposal.type+'</td></tr>';
+        var args = '';
+        for (var i=0;i<proposal.input_args.length;i++){
+            args = args + proposal.input_args[i]+'<br>';
+        }
+        html = html + '<tr><td>args</td><td>'+args+'</td></tr>';
+        html = html + '</tbody></table>';
+        return html;
+    }
+    function getResponseHtml(response){
+        var html = '<table class="layui-table" style="table-layout:fixed"><tbody>';;
+        html = html + '<tr><td width="100">chaincode_name</td><td>'+response.chaincode_name+'</td></tr>';
+        html = html + '<tr><td>status</td><td>'+response.status+'</td></tr>';
+        html = html + '<tr><td>message</td><td>'+response.message+'</td></tr>';
+        html = html + '<tr><td>ns_rwset</td><td class="ns_rwset">'+JSON.stringify(response.ns_rwset)+'</td></tr>';
+        html = html + '</tbody></table>';
+        return html;
+    }
+    function renderJson(){
+        $('.ns_rwset').each(function(index,elem){
+            try {
+                var input = eval('(' + $(elem).html() + ')');
+            }
+            catch (error) {
+                console.error(error);
+            }
+            var options = {
+                collapsed: $('#collapsed').is(':checked'),
+                withQuotes: $('#with-quotes').is(':checked')
+            };
+            $(elem).jsonBrowse(input, options);
+        });
+    }
+    function decodeBase64(actionJson){
+        for(var i=0;i<actionJson.chaincode_proposal.input_args.length;i++){
+            actionJson.chaincode_proposal.input_args[i]=Base64.decode(actionJson.chaincode_proposal.input_args[i]);
+        }
+        for(var i=0;i<actionJson.proposal_response.ns_rwset.length;i++){
+            for (j=0;j<actionJson.proposal_response.ns_rwset[i].rwset.writes.length;j++){
+                actionJson.proposal_response.ns_rwset[i].rwset.writes[j].value=Base64.decode(actionJson.proposal_response.ns_rwset[i].rwset.writes[j].value);
+            }
+        }
+    }
+</script>
+</body>
+
+</html>

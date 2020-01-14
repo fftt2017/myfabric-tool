@@ -15,6 +15,12 @@ type Blockchain struct {
 	PreviousBlockHash []byte
 }
 
+type Block struct {
+	DataHash string
+	Number int
+	PreviousHash string
+}
+
 func NewChannel(ci *peer.ChannelInfo) *Channel {
 	c := new(Channel)
 	c.Name = ci.GetChannelId()

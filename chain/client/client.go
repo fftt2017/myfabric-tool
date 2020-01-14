@@ -58,7 +58,7 @@ func RefreshDefaultClient(ordererOrg, ordererNode, peerOrg, peerNode, userOrg, u
 	if cc.BroadcastClient, err = common.GetBroadcastClientFnc(); err != nil {
 		return err
 	}
-
+	defaultChainClient = cc
 	return nil
 }
 

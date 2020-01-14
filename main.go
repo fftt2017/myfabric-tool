@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	. "myfabric-tool/bindata"
+	"myfabric-tool/chain/client"
 	"myfabric-tool/config"
 	. "myfabric-tool/controller"
 	"net/http"
@@ -17,6 +18,7 @@ func main() {
 
 	//to run 'go-bindata-assetfs  -o "bindata/bindata.go" -pkg bindata static/...' in terminal
 	ConfigRouter()
+	client.RefreshDefaultClient("org0","node1","org1","node1","org1","user")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal("start server failed, reson is : ", err)
 	}

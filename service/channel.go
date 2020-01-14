@@ -36,3 +36,17 @@ func GetChannelInfo(channelID string) (*model.Blockchain, error) {
 
 	return blockchain, nil
 }
+
+func ChannelFetch(channelID string, blockIndex string) (string, error) {
+	chainClient, err := client.GetDefaultClient()
+	if err != nil {
+		return "", err
+	}
+	block, err := client.FetchBlock(chainClient, channelID,blockIndex)
+	if err != nil {
+		return "", err
+	}
+
+
+	return block, nil
+}
