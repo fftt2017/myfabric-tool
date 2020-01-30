@@ -1,8 +1,10 @@
 package config
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/mitchellh/mapstructure"
@@ -139,4 +141,47 @@ func LoadConfig(file string) error {
 	}
 
 	return nil
+}
+
+func SaveSwitchParam(ordererOrg, ordererNode, peerOrg, peerNode, userOrg, user string) (error) {
+	param := map[string]interface{}{
+		"orderOrg":    ordererOrg,
+		"ordererNode": ordererNode,
+		"peerOrg":     peerOrg,
+		"peerNode":    peerNode,
+		"userOrg":     userOrg,
+		"user":        user,
+	}
+	out, err := json.Marshal(&param)
+	if err !=nil {
+		return err
+	}
+
+	pwd,err:=os.Getwd()
+	if err!=nil {
+		return err
+	}
+	ioutil.WriteFile(pwd+"/param.json", out, 755)
+	return nil
+}
+func GetSwitchParam() (ret map[string]string, err error) {
+	pwd,err:=os.Getwd()
+	if err!=nil {
+		return nil,err
+	}
+	fp, err := filepath.Abs(pwd+"/param.json")
+	if err != nil {
+		return nil,err
+	}
+	yf, err := ioutil.ReadFile(fp)
+	if err != nil {
+		return nil,err
+	}
+
+	m := make(map[string]string)
+
+	if err = json.Unmarshal(yf, &m); err != nil {
+		return nil,err
+	}
+	return m,nil
 }

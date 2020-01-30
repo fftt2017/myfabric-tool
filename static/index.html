@@ -2,7 +2,7 @@
 <html class="x-admin-sm">
     <head>
         <meta charset="UTF-8">
-        <title>后台登录-X-admin2.2</title>
+        <title>MyFabric-Tool</title>
         <meta name="renderer" content="webkit|ie-comp|ie-stand">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -30,8 +30,18 @@
             <div class="left_open">
                 <a><i title="展开左侧栏" class="iconfont">&#xe699;</i></a>
             </div>
-            
-            
+            <ul class="layui-nav-item left" id="switchNodeContainer">
+                <select id="orderSelect" lay-verify="required" class="layui-select">
+                    <option value="">选择order</option>
+                </select>
+                <select id="peerSelect" lay-verify="required" class="layui-select" onchange="peerChange()">
+                    <option value="">选择peer</option>
+                </select>
+                <select id="userSelect" lay-verify="required" class="layui-select">
+                    <option value="">选择user</option>
+                </select>
+                <button class="layui-btn" onclick="switchNode();">切换</button>
+            </ul>
         </div>
         <!-- 顶部结束 -->
         <!-- 中部开始 -->
@@ -58,9 +68,6 @@
                             </li>
                         </ul>
                     </li>
-                    
-                    
-                   
                     
                 </ul>
             </div>
@@ -92,5 +99,74 @@
         <!-- 右侧主体结束 -->
         <!-- 中部结束 -->
     </body>
-
+<script>
+    var configdata;
+    layui.use(['jquery'], function(){
+        var $ = jQuery = layui.$;
+        $.ajax({
+            type:"get",
+            url:"/getOrderPeerConfig",
+            dataType:"JSON",
+            success:function (data) {
+                configdata = data;
+                orders = data.orders;
+                peers = data.peers;
+                users = data.users;
+                if (orders && orders.length>0){
+                    for (var i=0;i< orders.length;i++){
+                        var selected = '';
+                        if (orders[i].name==data.saved.ordererNode&&orders[i].org==data.saved.orderOrg)selected=' selected';
+                        $('#orderSelect').append('<option value="'+orders[i].name+'" org="'+orders[i].org+'"'+selected+'>'+orders[i].name+'('+orders[i].org+')'+'</option>')
+                    }
+                }
+                if (peers && peers.length>0){
+                    for (var i=0;i< peers.length;i++){
+                        var selected = '';
+                        if (peers[i].name==data.saved.peerNode&&peers[i].org==data.saved.peerOrg){
+                            selected=' selected';
+                            genUserSelect(data.users,peers[i].org);
+                        }
+                        $('#peerSelect').append('<option value="'+peers[i].name+'" org="'+peers[i].org+'"'+selected+'>'+peers[i].name+'('+peers[i].org+')'+'</option>')
+                    }
+                }
+            }
+        });
+    });
+    function genUserSelect(users,org){
+        $('#userSelect').html('<option value="">选择user</option>');
+        if (users && users.length>0){
+            for (var i=0;i< users.length;i++){
+                if (users[i].org==org){
+                    var selected = '';
+                    if (users[i].name==configdata.saved.user&&users[i].org==configdata.saved.userOrg)selected=' selected';
+                    $('#userSelect').append('<option value="'+users[i].name+'" org="'+users[i].org+'"'+selected+'>'+users[i].name+'('+users[i].org+')'+'</option>')
+                }
+            }
+        }
+    }
+    function switchNode() {
+        var ordererOrg = $('#orderSelect').find('option:selected').attr('org');
+        var ordererNode = $('#orderSelect').val();
+        var peerOrg = $('#peerSelect').find('option:selected').attr('org');
+        var peerNode = $('#peerSelect').val();
+        var userOrg = $('#userSelect').find('option:selected').attr('org');
+        var user = $('#userSelect').val();
+        $.ajax({
+            type:"get",
+            url:"/switchNode",
+            data:{ordererOrg:ordererOrg,ordererNode:ordererNode,peerOrg:peerOrg,peerNode:peerNode,userOrg:userOrg,user:user},
+            success:function (data) {
+                if(data=='success') {
+                    layer.msg('切换成功');
+                }
+                else{
+                    layer.msg('切换失败');
+                }
+            }
+        })
+    }
+    function peerChange() {
+        genUserSelect(configdata.users,$('#peerSelect').find('option:selected').attr('org'));
+    }
+</script>
 </html>
